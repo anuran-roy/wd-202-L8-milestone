@@ -59,7 +59,7 @@ urlpatterns = [
     path("sessiontest/", views.session_storage_view),
     path("user/signup/", views.UserCreateView.as_view()),
     path("user/login/", views.UserLoginView.as_view()),
-    path("mail_time/<pk>/", views.MailTimeUpdateView.as_view()),
+    path("mail_time/", views.MailTimeUpdateView.as_view()),
     path("user/logout/", LogoutView.as_view()),
     path("bgjobs/", views.bg_jobs),
     path("", include(router.urls)),

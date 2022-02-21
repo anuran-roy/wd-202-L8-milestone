@@ -1,47 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tasks Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <a href="/user/logout/"
-      ><button
-        style="align: right"
-        class="m-4 p-4 h-15 text-red-700 transition-colors duration-150 border border-red-500 rounded-lg focus:shadow-outline hover:bg-red-500 hover:text-red-100"
+{% extends 'base.html' %} {% block title %}Todo Manager{% endblock %}
+{% block content %}
+<div class="flex justify-center w-full">
+  <div class="w-[340px] m-20">
+    <div class="flex items-center justify-between">
+      <span class="text-4xl font-bold"> Hi {{request.user}} </span>
+      <a href="/user/logout/" class="text-red-400"> Log out </a>
+    </div>
+    <div class="text-gray-400 my-3">
+      {{completed_tasks|length}} tasks completed.
+    </div>
+    <div class="mb-3">
+      <a
+        class="t-list-butt cursor-pointer py-1 px-6 rounded-3xl inline-block text-red-400 bg-gray-100"
+        btype="all"
+        href="/all_tasks/"
       >
-        Logout
-      </button></a
-    >
-
-    <ul class="flex flex-wrap m-4 p-4">
-      <li class="mr-2">
-        <a
-          href="/tasks/"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-          >Incomplete</a
-        >
-      </li>
-      <li class="mr-2">
-        <a
-          href="#"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-white bg-[#EF4444] rounded-lg active"
-          aria-current="page"
-          >Complete</a
-        >
-      </li>
-      <li class="mr-2">
-        <a
-          href="/all_tasks/"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-          >All</a
-        >
-      </li>
-      <li></li>
-    </ul>
+        All
+      </a>
+      <a
+        class="t-list-butt cursor-pointer py-1 px-6 rounded-3xl inline-block m-1 text-red-400 bg-gray-100"
+        btype="pending"
+        href="/tasks/"
+      >
+        Pending
+      </a>
+      <a
+        class="t-list-butt cursor-pointer py-1 px-6 rounded-3xl inline-block m-1 text-red-400 bg-red-100"
+        btype="completed"
+        href="/completed_tasks/"
+      >
+        Completed
+      </a>
+    </div>
     <form method="GET" action="/completed_tasks/">
       <div class="flex justify-center">
         <div class="mb-3 xl:w-96">
@@ -53,12 +43,12 @@
               id="search"
               name="search"
               class="m-2 form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-              placeholder="Search"
+              placeholder="Search completed tasks"
               aria-label="Search"
               aria-describedby="button-addon2"
             />
             <button
-              class="my-3 btn inline-block px-6 py-2.5 bg-[#EF4444] text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-[#EF1111] hover:shadow-lg focus:bg-[#EF4444] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#EF1111] active:shadow-lg transition duration-150 ease-in-out flex items-center"
+              class="my-3 btn inline-block px-6 rounded-xl py-2.5 bg-[#EF4444] text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-[#EF1111] hover:shadow-lg focus:bg-[#EF4444] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#EF1111] active:shadow-lg transition duration-150 ease-in-out flex items-center"
               type="submit"
               id="button-addon2"
             >
@@ -82,22 +72,44 @@
         </div>
       </div>
     </form>
-    <h2 class="p-2 m-2 text-2xl font-bold">Completed Tasks:</h2>
-    <ul class="list-disc p-4 m-4">
-      {% for i in completed %}
-      <li>
-        {{forloop.counter}}.&nbsp; {{i}}
-        <a href="/task/{{i.id}}"
-          ><button
-            type="button"
-            class="m-2 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+    {% for task in tasks %}
+    <div
+      task-block
+      class="bg-slate-100 rounded-lg p-3 flex justify-between items-center mb-5 task-complete-{{task.completed}}"
+    >
+      <div class="flex">
+        <div class="ml-2">
+          <a
+            href="/task/{{task.id}}"
+            class="font-bold {% if task.completed == True %} line-through text-red-400 {% endif %}"
           >
-            View Task
-          </button></a
+            {{task.title}}
+            <span class="text-gray-400">&middot; {{task.priority}}</span>
+          </a>
+          <br />
+          <span class="text-gray-500 text-sm">
+            {{task.created_date | date:"D d M"}}
+          </span>
+        </div>
+      </div>
+      <div>
+        <a
+          href="/update-task/{{task.id}}"
+          class="bg-teal-400 hover:bg-teal-500 transition m-1 text-white rounded-lg inline-flex items-center justify-center w-[38px] h-[38px]"
+          title="Update"
         >
-      </li>
-      {% endfor %}
-    </ul>
+          <i class="fal fa-pen"></i>
+        </a>
+        <a
+          href="/delete-task/{{task.id}}"
+          class="bg-[#F43F5E] hover:bg-red-600 transition m-1 text-white rounded-lg inline-flex items-center justify-center w-[38px] h-[38px]"
+          title="Delete"
+        >
+          <i class="fal fa-trash"></i>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
     <center>
       <div class="content-center flex flex-row m-5">
         Pages: {% for page in paginator.page_range %}
@@ -107,5 +119,12 @@
         {% endfor %}
       </div>
     </center>
-  </body>
-</html>
+    <a
+      href="/add-task/"
+      class="bg-red-500 block hover:bg-red-600 text-white rounded-xl p-3 text-base cursor-pointer transition w-full mt-10 text-center"
+    >
+      Add
+    </a>
+  </div>
+</div>
+{% endblock %}
