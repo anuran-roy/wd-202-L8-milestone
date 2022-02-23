@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete, post_delete
 
 from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import datetime, timedelta, timezone
 
 STATUS_CHOICES = (
     ("PENDING", "PENDING"),
@@ -37,6 +38,10 @@ class UserProfile(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(59)], default=30
     )
 
+    last_mailed = models.DateTimeField(
+        null=True, blank=True, default=datetime.now(timezone.utc)
+    )
+
     def __str__(self):
         return f"Profile: {self.user}" if self.user else "Profile: Anonymous"
 
@@ -46,8 +51,3 @@ def create_profile(sender, **kwargs):
     if not UserProfile.objects.filter(user=kwargs["instance"]).exists():
         new_profile = UserProfile(user=kwargs["instance"])
         new_profile.save()
-
-
-@receiver(post_save, sender=UserProfile)
-def change_details(sender, **kwargs):
-    pass

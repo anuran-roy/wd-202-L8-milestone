@@ -1,5 +1,5 @@
 from tasks.models import Task, UserProfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 
 from django.contrib.auth.models import User
@@ -25,16 +25,20 @@ def mail_user(user: User):
     send_mail("Task notifications", message, "admin@taskmanager.com", [user.email])
 
 
-@periodic_task(run_every=timedelta(hours=1))
+@periodic_task(run_every=timedelta(minutes=1))
 def monitor_mail_times():
     print("Fetching mail addresses and configuring send times...")
-    times = UserProfile.objects.all().order_by("user_id")
-    users = User.objects.all().order_by("id")
+    times = UserProfile.objects.filter(
+        hour__gte=datetime.now(timezone.utc).hour()
+    ).order_by("user_id")
 
-    for i, element in enumerate(users):
-        if times[i].hour == datetime.now().hour:
-            # app.add_periodic_task(
-            #     crontab(hour=datetime.now().hour, minute=datetime.now().minute + 1),
-            #     mail_user(element),
-            # )
-            mail_user(element)
+    for i in times:
+        try:
+            if i.last_mailed.day != datetime.now(timezone.utc).day:
+                mail_user(i.user)
+                i.last_mailed = datetime.now(timezone.utc)
+                i.save()
+        except:
+            print(
+                f"Celery worker failed at {datetime.now(timezone.utc).strftime('%m/%d/%Y, %H:%M:%S')}"
+            )
