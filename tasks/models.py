@@ -31,12 +31,7 @@ class Task(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    hour = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(23)], default=19
-    )
-    minute = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(59)], default=30
-    )
+    mail_time = models.TimeField(default=datetime.now().time())
 
     last_mailed = models.DateTimeField(
         null=True, blank=True, default=datetime.now(timezone.utc)

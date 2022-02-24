@@ -43,14 +43,15 @@ class UserCreationFormCustom(UserCreationForm):
 class ModifyMailTimeForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
-        self.fields["hour"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
-        self.fields["minute"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
-        hour = forms.IntegerField()
-        minute = forms.IntegerField()
+        self.fields["mail_time"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        # self.fields["minute"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        # hour = forms.IntegerField()
+        # minute = forms.IntegerField()
+        mail_time = forms.CharField(widgets=forms.TimeInput)
 
     class Meta:
         model = UserProfile
-        fields = ("hour", "minute")
+        fields = ("mail_time",)  # "minute")
         # widgets = {"mail_time": forms.TimeInput(attrs={"type": "time"})}
 
 
