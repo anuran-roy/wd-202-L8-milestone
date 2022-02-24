@@ -29,16 +29,18 @@ def mail_user(user: User):
 def monitor_mail_times():
     print("Fetching mail addresses and configuring send times...")
     times = (
-        UserProfile.objects.filter(last_mailed__lt=datetime.now(timezone.utc).date())
+        UserProfile.objects.filter(
+            last_mailed__lt=datetime.now(timezone.utc).date(),
+            mail_time__lt=datetime.now(timezone.utc).hour,
+        )
         .order_by("user_id")
         .select_for_update()
     )
 
     for i in times:
         try:
-            if i.mailed_time.hour == datetime.now(timezone.utc).hour:
-                mail_user(i.user)
-                i.last_mailed = datetime.now(timezone.utc)
+            mail_user(i.user)
+            i.last_mailed = datetime.now(timezone.utc)
         except:
             print(
                 f"Celery worker failed at {datetime.now(timezone.utc).strftime('%d/%m/%Y, %H:%M:%S')}"
